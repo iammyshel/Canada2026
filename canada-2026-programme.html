@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canada 2026 — Programme</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0e0e0e; color: #f0ede6; min-height: 100vh; }
+.header { background: #0e0e0e; border-bottom: 1px solid #222; padding: 16px 20px 0; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.trip-title { font-size: 13px; color: #888; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.trip-dates { font-size: 12px; color: #444; font-family: monospace; }
+.city-tabs { display: flex; overflow-x: auto; }
+.tab { padding: 10px 16px; background: none; border: none; color: #444; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.tab:hover { color: #aaa; }
+.tab[data-city="mtl"].active { border-bottom-color: #e8614a; color: #e8614a; }
+.tab[data-city="niagara"].active { border-bottom-color: #4a9ee8; color: #4a9ee8; }
+.tab[data-city="toronto"].active { border-bottom-color: #7ec87a; color: #7ec87a; }
+.tab[data-city="actions"].active { border-bottom-color: #c8a96e; color: #c8a96e; }
+.content { padding: 16px 20px 40px; max-width: 860px; margin: 0 auto; }
+.city-panel { display: none; }
+.city-panel.active { display: block; }
+.price-note { background: #1a1500; border: 1px solid #2d2415; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; font-size: 12px; color: #8a7a50; font-family: monospace; line-height: 1.6; }
+.price-note strong { color: #c8a96e; }
+.city-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; padding-top: 4px; }
+.city-name { font-size: 20px; font-weight: 700; }
+.city-name.mtl { color: #e8614a; }
+.city-name.niagara { color: #4a9ee8; }
+.city-name.toronto { color: #7ec87a; }
+.city-name.gold { color: #c8a96e; }
+.city-meta { font-size: 12px; color: #444; margin-bottom: 18px; font-family: monospace; }
+
+/* ── Timeline jour ── */
+.day-block { margin-bottom: 22px; }
+.day-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #1a1a1a; }
+.day-num { font-family: monospace; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px; letter-spacing: 0.05em; }
+.day-num.mtl { color: #e8614a; background: #200a06; border: 1px solid #3a1510; }
+.day-num.niagara { color: #4a9ee8; background: #061220; border: 1px solid #10253a; }
+.day-num.toronto { color: #7ec87a; background: #0a2008; border: 1px solid #153a12; }
+.day-title { font-size: 14px; font-weight: 600; color: #ccc; }
+.day-note { font-size: 11px; color: #555; font-family: monospace; margin-left: auto; }
+.timeline { display: grid; gap: 0; }
+.tl-row { display: grid; grid-template-columns: 58px 14px 1fr; gap: 0 10px; align-items: start; }
+.tl-time { font-family: monospace; font-size: 11px; color: #666; text-align: right; padding-top: 3px; }
+.tl-dot-col { display: flex; flex-direction: column; align-items: center; align-self: stretch; }
+.tl-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; margin-top: 6px; flex-shrink: 0; }
+.tl-row.hl .tl-dot { background: #c8a96e; }
+.tl-line { flex: 1; width: 1px; background: #1c1c1c; margin-top: 3px; }
+.tl-row:last-child .tl-line { display: none; }
+.tl-body { padding-bottom: 14px; min-width: 0; }
+.tl-what { font-size: 13.5px; color: #e8e4da; font-weight: 500; line-height: 1.35; }
+.tl-what .w { color: #666; font-weight: 400; }
+.tl-sub { font-size: 11.5px; color: #555; margin-top: 2px; line-height: 1.5; }
+.tl-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+.tag { font-size: 10px; font-family: monospace; padding: 2px 7px; border-radius: 4px; }
+.tag-transport { color: #888; background: #1a1a1a; border: 1px solid #222; }
+.tag-resa { color: #e8a04a; background: #201400; border: 1px solid #3a2810; }
+.tag-ok { color: #7ec87a; background: #0a2008; border: 1px solid #153a12; }
+.tag-warn { color: #e8614a; background: #200a06; border: 1px solid #3a1510; }
+.tag-free { color: #6eb4c8; background: #001520; border: 1px solid #152530; }
+.tag-eat { color: #c8a96e; background: #1a1500; border: 1px solid #2d2415; }
+
+/* ── Cartes adresses ── */
+.section-label { font-family: monospace; font-size: 10px; color: #3a3a3a; letter-spacing: 0.12em; text-transform: uppercase; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #1a1a1a; }
+.spots-grid { display: grid; gap: 8px; }
+.spot-card { background: #141414; border: 1px solid #1e1e1e; border-radius: 10px; padding: 11px 14px; display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: start; }
+.spot-card.is-base { border-color: #2a2200; background: #111000; }
+.spot-emoji { font-size: 18px; text-align: center; padding-top: 1px; }
+.spot-name { font-weight: 600; font-size: 13.5px; color: #f0ede6; margin-bottom: 2px; }
+.spot-detail { font-size: 11.5px; color: #555; line-height: 1.5; }
+.nav-link { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; font-family: monospace; white-space: nowrap; background: #1a3a1a; color: #7ec87a; border: 1px solid #2a4a2a; }
+.nav-link:hover { opacity: 0.8; }
+
+/* ── Actions ── */
+.action-card { background: #141414; border: 1px solid #1e1e1e; border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; margin-bottom: 8px; }
+.action-prio { font-size: 15px; padding-top: 1px; }
+.action-name { font-weight: 600; font-size: 13.5px; margin-bottom: 2px; }
+.action-detail { font-size: 11.5px; color: #555; line-height: 1.5; }
+.verif { color: #c8a96e; font-family: monospace; font-size: 10px; }
+
+/* ── Sous-toggle Programme / Food / Drinks ── */
+.section-toggle { display: flex; gap: 6px; margin-bottom: 18px; background: #141414; padding: 3px; border-radius: 7px; width: fit-content; }
+.section-btn { padding: 6px 14px; border-radius: 5px; border: none; cursor: pointer; font-size: 12.5px; font-weight: 600; transition: all 0.15s; background: transparent; color: #555; font-family: inherit; }
+.section-btn.active { background: #262626; color: #e8e4dc; }
+.section-btn:hover:not(.active) { color: #999; }
+.section-panel { display: none; }
+.section-panel.active { display: block; }
+
+/* ── Cartes food/drinks enrichies ── */
+.tip-bar { background: #141414; border: 1px solid #222; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 11.5px; color: #666; font-family: monospace; }
+.tip-bar strong { color: #c8a96e; }
+.fd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.fd-card { background: #141414; border: 1px solid #1e1e1e; border-radius: 10px; padding: 12px 14px; }
+.fd-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 3px; gap: 8px; }
+.fd-name { font-size: 13.5px; font-weight: 700; color: #f0ede6; line-height: 1.3; }
+.fd-emoji { font-size: 15px; flex-shrink: 0; }
+.fd-dish { font-family: monospace; font-size: 10px; color: #c8a96e; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.fd-info { font-size: 11.5px; color: #666; line-height: 1.5; margin-bottom: 8px; }
+.fd-address { font-size: 10.5px; color: #444; margin-bottom: 9px; font-family: monospace; }
+.fd-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9.5px; font-family: monospace; margin-left: 5px; }
+.fd-badge-resa { background: #2a1a1a; color: #c87a6e; border: 1px solid #4a2a2a; }
+.fd-badge-cash { background: #1a1f2a; color: #6e8ec8; border: 1px solid #2a3a4a; }
+.fd-badge-deal { background: #1a2a1a; color: #6ec87a; border: 1px solid #2a4a2a; }
+.fd-card.must-see { border-left: 3px solid #c8a96e; }
+
+@media (max-width: 480px) {
+  .tl-row { grid-template-columns: 48px 12px 1fr; }
+  .day-note { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <span class="trip-title">🍁 Canada 2026 — Programme</span>
+    <span class="trip-dates">02–09 août · MTL → Niagara → Toronto · Vols AC845 / AC842</span>
+  </div>
+  <div class="city-tabs">
+    <button class="tab active" data-city="mtl" onclick="switchCity('mtl')">Montréal</button>
+    <button class="tab" data-city="niagara" onclick="switchCity('niagara')">Niagara</button>
+    <button class="tab" data-city="toronto" onclick="switchCity('toronto')">Toronto</button>
+    <button class="tab" data-city="actions" onclick="switchCity('actions')">✅ Actions</button>
+  </div>
+</div>
+<div class="content">
+  <div class="price-note">
+    <strong>Prix HT partout.</strong> Montréal +15% · Ontario +13% · Tip = bouton <strong>18%</strong> · Multiplicateur : ×1,35 MTL · ×1,33 Ontario
+  </div>
+
+  <!-- ═══════════ MONTRÉAL ═══════════ -->
+  <div class="city-panel active" id="panel-mtl">
+    <div class="city-header"><span class="city-name mtl">Montréal</span><span class="trip-dates">J1–J4 · 2–5 août</span></div>
+    <div class="city-meta">Base : Hôtel Le Dauphin · 1025 rue de Bleury · code 7414 — REM · BIXI · STM · Uber tard</div>
+
+    <div class="section-toggle">
+      <button class="section-btn active" onclick="switchSection('mtl','prog',this)">📅 Programme</button>
+      <button class="section-btn" onclick="switchSection('mtl','food',this)">🍽️ Food</button>
+      <button class="section-btn" onclick="switchSection('mtl','drinks',this)">🍺 Drinks</button>
+      <button class="section-btn" onclick="switchSection('mtl','mustsee',this)">🏛️ Must-see</button>
+    </div>
+
+    <div class="section-panel active" id="mtl-prog">
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num mtl">J1</span><span class="day-title">Dimanche 2 août — Arrivée &amp; Mile End</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">11h45</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">✈️ Arrivée YUL <span class="w">(AC845)</span> → REM centre-ville</div><div class="tl-tags"><span class="tag tag-transport">REM ~25 min · ~4 CAD</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~13h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏨 Dépôt bagages Le Dauphin</div><div class="tl-tags"><span class="tag tag-transport">À pied</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~14h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏘️ Balade Plateau / Mile End</div><div class="tl-tags"><span class="tag tag-transport">BIXI</span></div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~15h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🥯 St-Viateur Bagel</div><div class="tl-sub">Four à bois · ouvert 6h–minuit 7j/7</div><div class="tl-tags"><span class="tag tag-eat">MUST-EAT</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~17h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍺 Apéro Mile End — Vices &amp; Versa</div><div class="tl-sub">40 bières québécoises pression · Dieu du Ciel! fermé le dimanche → décalé J3</div><div class="tl-tags"><span class="tag tag-warn">DDC FERMÉ DIM</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~19h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍽️ Dîner quartier <span class="w">(Plateau ou retour centre — voir adresses)</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num mtl">J2</span><span class="day-title">Lundi 3 août — Plateau &amp; Vieux-Port</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">~10h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">☕ Balade Plateau-Mont-Royal</div><div class="tl-sub">Cafés, terrasses, rue Mont-Royal</div><div class="tl-tags"><span class="tag tag-transport">BIXI</span></div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~11h15</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌳 Parc du Mont-Royal</div><div class="tl-sub">Belvédère Kondiaronk pour la vue sur la ville · ~15-20 min à BIXI depuis le Plateau</div><div class="tl-tags"><span class="tag tag-free">GRATUIT</span><span class="tag tag-transport">BIXI</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~13h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍜 Déjeuner street food / cantine de quartier</div><div class="tl-sub">La Banquise (24h/24) ou Ma Poule Mouillée — attention, fermée le lundi</div><div class="tl-tags"><span class="tag tag-warn">MPM FERMÉ LUN</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~14h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌊 Vieux-Port · Marché des Éclusiers</div><div class="tl-sub">Ouvre 15h le lundi — caler l'arrivée en conséquence</div><div class="tl-tags"><span class="tag tag-transport">BIXI</span></div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~19h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🤠 Spaghetti Western</div><div class="tl-sub">6390 rue St-Hubert · bar country, line dancing · ouvre 17h</div><div class="tl-tags"><span class="tag tag-transport">BIXI / Uber</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num mtl">J3</span><span class="day-title">Mardi 4 août — Excursion Lanaudière</span><span class="day-note">voiture dès aujourd'hui</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">07h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚗 Récup voiture Avis</div><div class="tl-sub">5 Complexe Desjardins, CP 459, Débarcadère Saint-Urbain · ouvre 7h · Amex Gold — décliner CDW/LDW au comptoir</div><div class="tl-tags"><span class="tag tag-ok">RÉSERVÉ</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~08h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">Départ vers Saint-Jean-de-Matha <span class="w">(~1h15)</span></div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~09h15</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌿 Parc Chutes Monte-à-Peine-et-des-Dalles</div><div class="tl-sub">Randonnée · 13 CAD/pers · sentiers autour des chutes</div><div class="tl-tags"><span class="tag tag-eat">JOURNÉE NATURE</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~16h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">Retour Montréal</div></div></div>
+        <div class="tl-row"><div class="tl-time">~19h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍺 Dieu du Ciel! <span class="w">(apéro rattrapé)</span> + dîner quartier</div><div class="tl-sub">29 av. Laurier O · ~20 bières maison · Péché Mortel</div><div class="tl-tags"><span class="tag tag-ok">OUVERT MARDI</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num mtl">J4</span><span class="day-title">Mercredi 5 août — Schwartz's puis route Niagara</span></div>
+      <div class="timeline">
+        <div class="tl-row hl"><div class="tl-time">~10h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🥩 Schwartz's Deli</div><div class="tl-sub">Smoked meat "medium fat" · ouvre 10h — y être à l'ouverture pour éviter la file</div><div class="tl-tags"><span class="tag tag-eat">MUST-EAT</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~11h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏙️ Balade Vieux-Montréal</div><div class="tl-tags"><span class="tag tag-transport">BIXI</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~14h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚗 Départ Niagara Falls <span class="w">(~6h30 avec pause)</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~17h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">Arrivée Your Oasis · check-in</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~18h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🎫 Activer le Pass Plus + réserver les créneaux</div><div class="tl-sub">Comptoir Table Rock ou centre d'accueil Niagara Parks · pass valable 2 jours (J4 soir → J6 matin) — fixer ici les créneaux Journey Behind the Falls (J5 matin) et Power Station (J5 soir)</div><div class="tl-tags"><span class="tag tag-resa">À FAIRE EN ARRIVANT</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~20h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌊 Illuminations des chutes · Queen Victoria Park</div><div class="tl-tags"><span class="tag tag-free">GRATUIT</span><span class="tag tag-transport">WEGO</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Adresses Montréal — autour de l'hôtel</div>
+    <div class="spots-grid">
+      <div class="spot-card is-base"><div class="spot-emoji">🏨</div><div><div class="spot-name">Hôtel Le Dauphin</div><div class="spot-detail">1025 rue de Bleury · code 7414</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5043399,-73.5622572" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍺</div><div><div class="spot-name">NYKS</div><div class="spot-detail">1250 rue de Bleury · 11h30–3h · poutine canard, tartare · 5 min</div></div><a class="nav-link" href="https://maps.google.com/?q=45.506032,-73.566683" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🎱</div><div><div class="spot-name">Taverne Midway</div><div class="spot-detail">1219 boul. St-Laurent · depuis 1927 · happy hour 16h–19h · 6 min</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5097306,-73.5632694" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍽️</div><div><div class="spot-name">LE CENTRAL</div><div class="spot-detail">30 rue Ste-Catherine O · food court artisanal · 7 min</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5092058,-73.5630997" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍸</div><div><div class="spot-name">MALT</div><div class="spot-detail">300 rue Ontario E · cocktails mason jar, vinyles · 12 min</div></div><a class="nav-link" href="https://maps.google.com/?q=45.514809,-73.565398" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🥟</div><div><div class="spot-name">Kim Fung (dim sum)</div><div class="spot-detail">1111 rue St-Urbain · chariots cantonais · avant 11h le dimanche</div></div><a class="nav-link" href="https://maps.google.com/?q=45.507718,-73.5618084" target="_blank">↗ Maps</a></div>
+    </div>
+
+    <div class="section-label">Plateau / Mile End / Rosemont</div>
+    <div class="spots-grid">
+      <div class="spot-card"><div class="spot-emoji">🍽️</div><div><div class="spot-name">La Banquise</div><div class="spot-detail">994 rue Rachel E · 24h/24 · poutine 30+ versions</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5253231,-73.5748058" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍗</div><div><div class="spot-name">Ma Poule Mouillée</div><div class="spot-detail">969 rue Rachel E · poulet portugais au charbon · fermé lundi</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5251666,-73.5752559" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🥯</div><div><div class="spot-name">Fairmount Bagel</div><div class="spot-detail">74 av. Fairmount O · 24h/24 · cash/débit CA uniquement</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5228777,-73.5951705" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍝</div><div><div class="spot-name">Drogheria Fine</div><div class="spot-detail">76 av. Fairmount O · gnocchi 5 CAD · file trottoir · cash/débit CA</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5229987,-73.5951040" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍺</div><div><div class="spot-name">Dieu du Ciel!</div><div class="spot-detail">29 av. Laurier O · brasserie · fermé dimanche</div></div><a class="nav-link" href="https://maps.google.com/?q=45.52279,-73.5933601" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍺</div><div><div class="spot-name">Vices &amp; Versa</div><div class="spot-detail">6631 boul. St-Laurent · 40 bières québécoises pression</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5313516,-73.6105694" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🤠</div><div><div class="spot-name">Spaghetti Western</div><div class="spot-detail">6390 rue St-Hubert · 17h–3h 7j/7 · country, bull mécanique</div></div><a class="nav-link" href="https://maps.google.com/?q=45.535723,-73.6025570" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🛒</div><div><div class="spot-name">Marché Jean-Talon</div><div class="spot-detail">7070 av. Henri-Julien · 8h–18h · producteurs, huîtres, fromages</div></div><a class="nav-link" href="https://maps.google.com/?q=45.536109,-73.6148902" target="_blank">↗ Maps</a></div>
+    </div>
+
+    <div class="section-label">Vieux-Port</div>
+    <div class="spots-grid">
+      <div class="spot-card"><div class="spot-emoji">🍹</div><div><div class="spot-name">Marché des Éclusiers</div><div class="spot-detail">Quai de l'Horloge · bar + tapas + terrasse · dès 15h lun–mer, 12h jeu–dim</div></div><a class="nav-link" href="https://maps.google.com/?q=45.498553,-73.5521070" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🍷</div><div><div class="spot-name">Buvette Pastek</div><div class="spot-detail">209 rue St-Paul O · vin naturel, huîtres</div></div><a class="nav-link" href="https://maps.google.com/?q=45.502579,-73.5554629" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🇮🇹</div><div><div class="spot-name">Dinette Marcella</div><div class="spot-detail">196 rue St-Paul O · tortellini, arancini, burrata</div></div><a class="nav-link" href="https://maps.google.com/?q=45.502795,-73.5551201" target="_blank">↗ Maps</a></div>
+      <div class="spot-card"><div class="spot-emoji">🐺</div><div><div class="spot-name">Pub Wolf &amp; Workman</div><div class="spot-detail">139 rue St-Paul O · pub de quartier · sandwich cubain</div></div><a class="nav-link" href="https://maps.google.com/?q=45.5037576,-73.554915" target="_blank">↗ Maps</a></div>
+    </div>
+    </div><!-- /mtl-prog -->
+
+    <div class="section-panel" id="mtl-food">
+      <div class="tip-bar">💡 Taxe <strong>+15%</strong> (TPS+TVQ) · Multiplicateur <strong>×1,35</strong> · Tip bouton <strong>18%</strong></div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Schwartz's Deli</div><div class="fd-emoji">🥩</div></div><div class="fd-dish">Smoked meat sandwich</div><div class="fd-info">Commander "medium fat". Rye + moutarde jaune, c'est tout. File permanente, fait partie du rituel.</div><div class="fd-address">3895 boul Saint-Laurent · 10h–23h (ven/sam minuit)</div><a class="nav-link" href="https://maps.google.com/?q=45.5163503,-73.5776401" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">La Banquise</div><div class="fd-emoji">🍟</div></div><div class="fd-dish">Poutine · 30+ versions</div><div class="fd-info">Ouvert 24h/24. T-Rex ou smoked meat poutine pour débuter. File possible le weekend.</div><div class="fd-address">994 rue Rachel Est · 24h/24 · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=45.5253231,-73.5748058" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Ma Poule Mouillée</div><div class="fd-emoji">🍗</div></div><div class="fd-dish">Poulet portugais au charbon</div><div class="fd-info">File 15–30 min le weekend. En face de La Banquise — enchaîner les deux au Parc Fontaine.</div><div class="fd-address">969 rue Rachel Est · Fermé lundi · 10h–21h</div><a class="nav-link" href="https://maps.google.com/?q=45.5251666,-73.5752559" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">St-Viateur Bagel</div><div class="fd-emoji">🥯</div></div><div class="fd-dish">Bagel montréalais au four à bois</div><div class="fd-info">Bouilli dans l'eau mielée, chaud en permanence. Le débat St-Viateur vs Fairmount est religieux.</div><div class="fd-address">263 rue Saint-Viateur O · 6h–minuit · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=45.5226914,-73.6019581" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Fairmount Bagel</div><div class="fd-emoji">🥯</div></div><div class="fd-dish">Rival historique de St-Viateur</div><div class="fd-info">24h/24 — idéal retour tardif. Comparer avec St-Viateur et trancher.</div><div class="fd-address">74 av Fairmount Ouest · 24h/24</div><a class="nav-link" href="https://maps.google.com/?q=45.5228777,-73.5951705" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-cash">Cash/débit CA</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Drogheria Fine</div><div class="fd-emoji">🍝</div></div><div class="fd-dish">Gnocchi à 5 CAD</div><div class="fd-info">File sur trottoir, manger sur un banc au parc Jeanne-Mance. Concept unique au monde.</div><div class="fd-address">76 av Fairmount Ouest</div><a class="nav-link" href="https://maps.google.com/?q=45.5229987,-73.5951040" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-cash">Cash/débit CA</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Marché Jean-Talon</div><div class="fd-emoji">🛒</div></div><div class="fd-dish">Marché producteurs · huîtres · fromages · poisson fumé</div><div class="fd-info">Y aller le dimanche matin avant 10h. Terrines de gibier, légumes du Québec, étals artisanaux.</div><div class="fd-address">7070 av Casgrain · 8h–18h (dim 17h)</div><a class="nav-link" href="https://maps.google.com/?q=45.536109,-73.6148902" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Marché des Éclusiers</div><div class="fd-emoji">🌊</div></div><div class="fd-dish">Tapas · bar terrasse · Vieux-Port</div><div class="fd-info">Marché estival sur le canal Lachine. À partir de 12h (15h lun–mer). Bar extérieur.</div><div class="fd-address">Vieux-Port · à partir de 12h</div><a class="nav-link" href="https://maps.google.com/?q=45.498553,-73.5521070" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Kim Fung</div><div class="fd-emoji">🥟</div></div><div class="fd-dish">Dim sum cantonais avec chariots</div><div class="fd-info">Y aller avant 11h le dimanche. Chariots jusqu'à 14h. Bruyant, bondé, authentique.</div><div class="fd-address">1111 rue Saint-Urbain · Quartier chinois</div><a class="nav-link" href="https://maps.google.com/?q=45.507718,-73.5618084" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Dinette Marcella</div><div class="fd-emoji">🍝</div></div><div class="fd-dish">Italien Vieux-Port · tortellini · arancini · burrata</div><div class="fd-info">Pesto maison, pasta fraîche. Belle salle tamisée. Vieux-Port sans l'aspect touristique.</div><div class="fd-address">196 rue St-Paul Ouest · 11h30–23h</div><a class="nav-link" href="https://maps.google.com/?q=45.502795,-73.5551201" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-resa">Résa conseillée</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">NYKS</div><div class="fd-emoji">🍽️</div></div><div class="fd-dish">Pub · poutine canard · tartare bœuf · moules-frites</div><div class="fd-info">Voisin direct de l'hôtel Le Dauphin. Soupe à l'oignon, bons plats de pub. 11h30–3h.</div><div class="fd-address">1250 rue de Bleury · 11h30–3h · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=45.506032,-73.566683" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">LE CENTRAL</div><div class="fd-emoji">🏬</div></div><div class="fd-dish">Food court artisanal · pasta fraîche · pizza · steak</div><div class="fd-info">Option de dépannage de qualité. Plusieurs cuisines sous un même toit. 11h–minuit (jeu/ven).</div><div class="fd-address">30 rue Sainte-Catherine O · jusqu'à minuit</div><a class="nav-link" href="https://maps.google.com/?q=45.5092058,-73.5630997" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Lola Rosa</div><div class="fd-emoji">🥗</div></div><div class="fd-dish">Végétarien · burgers · burritos · nachos</div><div class="fd-info">4,6/5 — le végé le plus sérieux du quartier. Tiroirs avec notes des clients depuis des années.</div><div class="fd-address">276 rue Sainte-Catherine O · 11h30–22h</div><a class="nav-link" href="https://maps.google.com/?q=45.5068838,-73.5662586" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="mtl-drinks">
+      <div class="tip-bar">💡 Taxe <strong>+15%</strong> (TPS+TVQ) · Multiplicateur <strong>×1,35</strong> · Tip bouton <strong>18%</strong></div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Dieu du Ciel!</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Brasserie artisanale · ~20 bières maison</div><div class="fd-info">Référence absolue de Montréal. Péché Mortel (stout café 9,5°) si dispo. Terrasse été.</div><div class="fd-address">29 av Laurier Ouest · 11h30 (11h wkd) · fermé dimanche</div><a class="nav-link" href="https://maps.google.com/?q=45.52279,-73.5933601" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Vices &amp; Versa</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">40 bières québécoises à la pression</div><div class="fd-info">100% brasseries du Québec. Poutine au canard. 11h30–1h (jeu–sam 3h). Mile End.</div><div class="fd-address">6631 boul Saint-Laurent · Mile End</div><a class="nav-link" href="https://maps.google.com/?q=45.5313516,-73.6105694" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">MALT</div><div class="fd-emoji">🍸</div></div><div class="fd-dish">Cocktails en mason jar · vinyles · ambiance chill</div><div class="fd-info">4,7/5 — meilleur bar du périmètre hôtel. Litchi bomb à 3 CAD. 16h–1h (ven/sam 3h).</div><div class="fd-address">300 rue Ontario Est · 16h–1h (ven/sam 3h)</div><a class="nav-link" href="https://maps.google.com/?q=45.514809,-73.565398" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Taverne Midway</div><div class="fd-emoji">🎱</div></div><div class="fd-dish">Bar historique 1927 · billard · art déco</div><div class="fd-info">Happy hour 16h–19h. Bonne sélection whisky. Ambiance vraie taverne montréalaise.</div><div class="fd-address">1219 boul Saint-Laurent · 16h–3h · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=45.5097306,-73.5632694" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Buvette Pastek</div><div class="fd-emoji">🍷</div></div><div class="fd-dish">Bar à vin naturel · huîtres · petits plats</div><div class="fd-info">Meilleure option vin du périmètre. Brunch sam–dim dès 10h. Vieux-Port hors zone touristique.</div><div class="fd-address">209 rue St-Paul Ouest · 16h–23h (sam–dim 10h)</div><a class="nav-link" href="https://maps.google.com/?q=45.502579,-73.5554629" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Pub Wolf &amp; Workman</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Pub Vieux-Port · bonne sélection pression</div><div class="fd-info">4,6/5 — prix raisonnables pour la zone. Sandwich cubain, mousse au chocolat.</div><div class="fd-address">139 rue St-Paul Ouest · 11h30–1h (ven/sam 2h)</div><a class="nav-link" href="https://maps.google.com/?q=45.5037576,-73.554915" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Spaghetti Western</div><div class="fd-emoji">🤠</div></div><div class="fd-dish">Bar country · line dancing · bull mécanique</div><div class="fd-info">Rosemont. Concept unique à Montréal. 17h–3h 7j/7.</div><div class="fd-address">6390 rue Saint-Hubert · 17h–3h · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=45.535723,-73.6025570" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="mtl-mustsee">
+      <div class="tip-bar">💡 Hors périmètre du programme — pur incontournable touristique, à intégrer seulement si ça vous tente vraiment.</div>
+      <div class="fd-grid">
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Basilique Notre-Dame</div><div class="fd-emoji">⛪</div></div><div class="fd-info">Intérieur néogothique bleu nuit spectaculaire, avec le spectacle son et lumière AURA en soirée.</div><div class="fd-address">110 rue Notre-Dame O · 9h–16h (dim 12h30–16h)</div><a class="nav-link" href="https://maps.google.com/?q=45.5045254,-73.5561204" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Place Jacques-Cartier</div><div class="fd-emoji">🏛️</div></div><div class="fd-info">Cœur du Vieux-Montréal pavé, artistes de rue et calèches — la carte postale classique.</div><div class="fd-address">Place Jacques-Cartier, Vieux-Montréal</div><a class="nav-link" href="https://maps.google.com/?q=45.5078753,-73.5533705" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">La Biosphère</div><div class="fd-emoji">🌐</div></div><div class="fd-info">Ancien pavillon américain de l'Expo 67, aujourd'hui musée de l'environnement, sur l'île Sainte-Hélène.</div><div class="fd-address">160 chemin du Tour-de-l'Isle · 9h–18h</div><a class="nav-link" href="https://maps.google.com/?q=45.5138833,-73.5314408" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Jardin botanique</div><div class="fd-emoji">🌸</div></div><div class="fd-info">Un des plus grands jardins botaniques au monde, avec jardin japonais et chinois remarquables.</div><div class="fd-address">4101 rue Sherbrooke E · 9h–18h</div><a class="nav-link" href="https://maps.google.com/?q=45.5592018,-73.5576932" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Tour de Montréal</div><div class="fd-emoji">🗼</div></div><div class="fd-info">Tour inclinée du Stade olympique, funiculaire jusqu'à l'observatoire pour une vue à 360°.</div><div class="fd-address">3200 rue Viau · horaires variables <span class="verif">[Vérifie ça]</span></div><a class="nav-link" href="https://maps.google.com/?q=45.559979,-73.552704" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Centre Eaton</div><div class="fd-emoji">🛍️</div></div><div class="fd-info">Grand centre commercial du centre-ville, shopping mainstream et food court.</div><div class="fd-address">705 rue Sainte-Catherine O · 10h–21h (dim 11h–18h)</div><a class="nav-link" href="https://maps.google.com/?q=45.502739,-73.570948" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ NIAGARA ═══════════ -->
+  <div class="city-panel" id="panel-niagara">
+    <div class="city-header"><span class="city-name niagara">Niagara Falls / NOTL</span><span class="trip-dates">J4–J6 · 5–7 août</span></div>
+    <div class="city-meta">Base : Your Oasis · 4266 Elgin St · appart privé, jardin, parking gratuit · terminus WEGO à 600m</div>
+
+    <div class="section-toggle">
+      <button class="section-btn active" onclick="switchSection('niagara','prog',this)">📅 Programme</button>
+      <button class="section-btn" onclick="switchSection('niagara','food',this)">🍽️ Food</button>
+      <button class="section-btn" onclick="switchSection('niagara','drinks',this)">🍺 Drinks</button>
+      <button class="section-btn" onclick="switchSection('niagara','mustsee',this)">🏛️ Must-see</button>
+    </div>
+
+    <div class="section-panel active" id="niagara-prog">
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num niagara">J5</span><span class="day-title">Jeudi 6 août — Grosse journée chutes</span><span class="day-note">WEGO le matin · voiture l'après-midi</span></div>
+      <div class="timeline">
+        <div class="tl-row hl"><div class="tl-time">08h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚢 Niagara City Cruises</div><div class="tl-sub">Bateau Horseshoe Falls · poncho fourni · ~48 CAD/pers · hors Pass Plus, payée séparément</div><div class="tl-tags"><span class="tag tag-ok">RÉSERVÉ</span><span class="tag tag-transport">WEGO</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~09h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">☕ Red Ganache</div><div class="tl-sub">Pâtisserie artisanale 4,8/5 · ouvert le jeudi 9h–17h (fermé mardi)</div></div></div>
+        <div class="tl-row"><div class="tl-time">~10h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">💧 Journey Behind the Falls <span class="w">(~45 min)</span></div><div class="tl-sub">Tunnels derrière les chutes · inclus Pass Plus · créneau réservé la veille (J4)</div><div class="tl-tags"><span class="tag tag-ok">PASS ✓</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~12h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">☀️ Table Rock · bord des chutes</div></div></div>
+        <div class="tl-row"><div class="tl-time">~13h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍽️ Déjeuner Table Rock Bistro</div><div class="tl-sub">Terrasse vue chutes</div></div></div>
+        <div class="tl-row"><div class="tl-time">~14h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚶 White Water Walk <span class="w">(~1h)</span></div><div class="tl-tags"><span class="tag tag-ok">PASS ✓</span><span class="tag tag-transport">À pied 7 min</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~15h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚗 Récup voiture · Your Oasis</div></div></div>
+        <div class="tl-row"><div class="tl-time">~16h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌿 Niagara Glen · randonnée dans la gorge <span class="w">(~2h)</span></div><div class="tl-sub">Chaussures de marche + eau · nature centre ferme 17h, sentiers OK après</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~19h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">⚡ Power Station nocturne</div><div class="tl-sub">Illuminations + tunnel · inclus Pass Plus · créneau réservé la veille (J4)</div><div class="tl-tags"><span class="tag tag-ok">PASS ✓</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~21h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🎡 Fin de soirée · Clifton Hill ou retour</div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num niagara">J6</span><span class="day-title">Vendredi 7 août — NOTL puis route Toronto</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">Matin</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">Check-out Your Oasis</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~10h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏘️ Niagara-on-the-Lake · Queen Street</div><div class="tl-sub">Niagara Home Bakery (butter tarts) · brewery · éventuellement Peller ou Ravine pour l'ice wine</div></div></div>
+        <div class="tl-row"><div class="tl-time">~12h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍽️ Déjeuner NOTL</div></div></div>
+        <div class="tl-row"><div class="tl-time">~14h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚗 Départ Toronto via QEW <span class="w">(~1h30)</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~15h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">Arrivée DoubleTree · dépôt bagages</div></div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Adresses Niagara — base</div>
+    <div class="spots-grid">
+      <div class="spot-card is-base"><div class="spot-emoji">🏠</div><div><div class="spot-name">Your Oasis</div><div class="spot-detail">4266 Elgin St · appart privé · parking gratuit</div></div><a class="nav-link" href="https://maps.google.com/?q=43.094,-79.066" target="_blank">↗ Maps</a></div>
+    </div>
+    </div><!-- /niagara-prog -->
+
+    <div class="section-panel" id="niagara-food">
+      <div class="tip-bar">💡 Taxe <strong>+13%</strong> HST (Ontario) · Multiplicateur <strong>×1,33</strong> · Tip bouton <strong>18%</strong> · Voiture nécessaire pour NOTL &amp; Counterpart</div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Red Ganache</div><div class="fd-emoji">🧁</div></div><div class="fd-dish">Pâtisserie artisanale · fraisier · éclairs · Paris-Brest</div><div class="fd-info">4,8/5 sur ~1000 avis — rarissime à Niagara. Technique française, produits locaux. Ne pas rater.</div><div class="fd-address">Robinson St, Niagara Falls · 9h–17h (ven/sam 19h) · Fermé mardi</div><a class="nav-link" href="https://maps.google.com/?q=43.0860294,-79.0857965" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Niagara Home Bakery</div><div class="fd-emoji">🧁</div></div><div class="fd-dish">Butter tarts · scones · Danish</div><div class="fd-info">La spécialité ontarienne incontournable. Encore tiède c'est parfait. Queen St NOTL.</div><div class="fd-address">Queen St, Niagara-on-the-Lake · 8h–18h (wkd 19h)</div><a class="nav-link" href="https://maps.google.com/?q=43.255641,-79.0730896" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">The Blind Pig</div><div class="fd-emoji">🍖</div></div><div class="fd-dish">Gastropub local · brisket · pork belly bourbon</div><div class="fd-info">La référence des locaux. Loin de Clifton Hill, c'est voulu. Happy hour avec demi-prix sur les entrées.</div><div class="fd-address">6689 Lundy's Lane, Niagara Falls · 11h30–1h</div><a class="nav-link" href="https://maps.google.com/?q=43.08968,-79.1067061" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Ravine Vineyard</div><div class="fd-emoji">🌿</div></div><div class="fd-dish">Domaine · boulangerie · croissants · pain sourdough</div><div class="fd-info">Croissants chocolat + vins estate sur place. Boulangerie artisanale intégrée au domaine viticole.</div><div class="fd-address">St. Davids, NOTL · 11h–20h · Voiture nécessaire</div><a class="nav-link" href="https://maps.google.com/?q=43.160296,-79.1032124" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Niagara Fruit Stand</div><div class="fd-emoji">🍑</div></div><div class="fd-dish">Pêches · cerises · fraises · producteur direct</div><div class="fd-info">Plein août = pleine saison. Arrêt spontané voiture sur Niagara Pkwy. Meilleur achat du trip.</div><div class="fd-address">Niagara Parkway (bord de route) · horaires variables <span class="verif">[Vérifie ça]</span></div></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="niagara-drinks">
+      <div class="tip-bar">💡 Taxe <strong>+13%</strong> HST (Ontario) · Multiplicateur <strong>×1,33</strong> · Tip bouton <strong>18%</strong></div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">No Tell Cocktail Speakeasy</div><div class="fd-emoji">🍸</div></div><div class="fd-dish">Bar caché · cocktails maison · 4,9/5</div><div class="fd-info">Le meilleur bar de toute la ville. Façade discrète sur Queen St, ambiance 100% locale. Incontournable.</div><div class="fd-address">4661 Queen St, Niagara Falls · Fermé lun/mar · dès 17h</div><a class="nav-link" href="https://maps.google.com/?q=43.1068413,-79.0705300" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Taps Brewhouse</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Brasserie locale · vols de bières · concerts</div><div class="fd-info">Juste à côté du Speakeasy. Fish &amp; chips, poutine, prix raisonnables. Trivia musical régulier.</div><div class="fd-address">4680 Queen St, Niagara Falls · 11h30–23h</div><a class="nav-link" href="https://maps.google.com/?q=43.106308,-79.0709454" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Counterpart Brewing</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Meilleure brasserie de Niagara · 4,7/5</div><div class="fd-info">Fried chicken, pretzel, burgers. Barrel aged stouts exceptionnels. Patio dog-friendly. Vaut le détour en voiture.</div><div class="fd-address">3659 Stanley Ave #8 · 12h–22h (ven/sam 23h)</div><a class="nav-link" href="https://maps.google.com/?q=43.119800,-79.0870347" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Peller Estates Winery</div><div class="fd-emoji">🍷</div></div><div class="fd-dish">Vins Niagara · ice wine · visite cave</div><div class="fd-info">Ice wine pressé sur raisins gelés à -8°C. Verre de dégustation ~10–15 CAD <span class="verif">[Vérifie ça]</span>. NOTL.</div><div class="fd-address">290 John St E, NOTL · 11h–20h · Voiture nécessaire</div><a class="nav-link" href="https://maps.google.com/?q=43.238561,-79.0669826" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="niagara-mustsee">
+      <div class="tip-bar">💡 Hors périmètre du programme — pur incontournable touristique, à intégrer seulement si ça vous tente vraiment.</div>
+      <div class="fd-grid">
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Clifton Hill</div><div class="fd-emoji">🎡</div></div><div class="fd-info">Rue touristique assumée façon Las Vegas mini format — néons, attractions kitsch, arcades, Ripley's Believe It or Not.</div><div class="fd-address">Clifton Hill, Niagara Falls</div><a class="nav-link" href="https://maps.google.com/?q=43.0910869,-79.0740499" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Skylon Tower</div><div class="fd-emoji">🗼</div></div><div class="fd-info">Tour d'observation à 236m avec restaurant tournant et vue panoramique sur les chutes.</div><div class="fd-address">5200 Robinson St · 8h–minuit</div><a class="nav-link" href="https://maps.google.com/?q=43.0850931,-79.0795620" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Niagara SkyWheel</div><div class="fd-emoji">🎠</div></div><div class="fd-info">Grande roue à gondoles fermées sur Clifton Hill, vue sur les chutes en soirée illuminée.</div><div class="fd-address">4960 Clifton Hill · 10h–2h</div><a class="nav-link" href="https://maps.google.com/?q=43.090929,-79.07551" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Butterfly Conservatory</div><div class="fd-emoji">🦋</div></div><div class="fd-info">Serre tropicale avec plus de 1000 papillons en liberté, une des meilleures notes de Niagara Parks.</div><div class="fd-address">2565 Niagara River Pkwy · 9h–20h</div><a class="nav-link" href="https://maps.google.com/?q=43.1370218,-79.0555897" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Whirlpool Aero Car</div><div class="fd-emoji">🚡</div></div><div class="fd-info">Téléphérique historique au-dessus du tourbillon de la rivière Niagara — inclus dans ton Pass Plus.</div><div class="fd-address">3850 Niagara River Pkwy · 9h–20h</div><a class="nav-link" href="https://maps.google.com/?q=43.1180306,-79.0687889" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-deal">Inclus Pass Plus</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TORONTO ═══════════ -->
+  <div class="city-panel" id="panel-toronto">
+    <div class="city-header"><span class="city-name toronto">Toronto</span><span class="trip-dates">J6–J8 · 7–9 août</span></div>
+    <div class="city-meta">Base : DoubleTree Hilton · 108 Chestnut St · TTC + Uber — pas de voiture en ville</div>
+
+    <div class="section-toggle">
+      <button class="section-btn active" onclick="switchSection('toronto','prog',this)">📅 Programme</button>
+      <button class="section-btn" onclick="switchSection('toronto','food',this)">🍽️ Food</button>
+      <button class="section-btn" onclick="switchSection('toronto','drinks',this)">🍺 Drinks</button>
+      <button class="section-btn" onclick="switchSection('toronto','mustsee',this)">🏛️ Must-see</button>
+    </div>
+
+    <div class="section-panel active" id="toronto-prog">
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num toronto">J6</span><span class="day-title">Vendredi 7 août — Soir · Waterfront &amp; jerk chicken</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">~15h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚗 Drop-off voiture Avis</div><div class="tl-sub">161 Bay St, Unit 140, BCE · ouvert ven jusqu'à 18h</div><div class="tl-tags"><span class="tag tag-ok">RÉSERVÉ</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~16h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌊 Harbourfront Centre · bord du lac</div><div class="tl-tags"><span class="tag tag-transport">À pied</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~17h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🗼 CN Tower · photo extérieure, balade</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">20h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🇯🇲 Dîner Chubby's Jamaican Kitchen</div><div class="tl-sub">Jerk chicken, brown stew · ouvert ven jusqu'à minuit</div><div class="tl-tags"><span class="tag tag-ok">RÉSERVÉ 20H</span><span class="tag tag-transport">TTC</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~21h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍺 Verre · retour hôtel</div><div class="tl-sub">Bar Hop (391 King St W) sur le chemin</div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num toronto">J7</span><span class="day-title">Samedi 8 août — Kensington, Chinatown, Little Italy</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">~09h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">☕ Petit-déj tranquille</div></div></div>
+        <div class="tl-row"><div class="tl-time">~11h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏘️ Kensington Market</div><div class="tl-sub">Street food, friperies · Golden Patty pour le jamaican patty à ~2,50 CAD</div><div class="tl-tags"><span class="tag tag-transport">TTC</span></div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~13h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🥟 Déjeuner Mother's Dumplings · Chinatown</div><div class="tl-sub">Dumplings maison porc/ciboulette, agneau · alternative cluster Baldwin St à 5 min</div><div class="tl-tags"><span class="tag tag-eat">MUST-EAT</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~15h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏨 Retour hôtel · repos</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~19h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍝 Dîner Trattoria Taverniti · Little Italy</div><div class="tl-sub">Pizza au bois, gnocchi rosé · petit resto qui refuse du monde le samedi</div><div class="tl-tags"><span class="tag tag-resa">RÉSA INDISPENSABLE</span><span class="tag tag-transport">TTC</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~21h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🎷 Verre — Bar Raval, Emmet Ray ou Bar Pompette</div><div class="tl-sub">Bar Raval à 3 min à pied de Taverniti</div></div></div>
+      </div>
+    </div>
+
+    <div class="day-block">
+      <div class="day-head"><span class="day-num toronto">J8</span><span class="day-title">Dimanche 9 août — Distillery, waterfront, décollage 21h</span></div>
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">~09h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">☕ Petit-déj tranquille</div></div></div>
+        <div class="tl-row hl"><div class="tl-time">~10h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏭 Distillery District</div><div class="tl-sub">Galeries, craft beer · Mill Street Brewpub, El Catrin</div><div class="tl-tags"><span class="tag tag-transport">TTC</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">~12h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🌊 Waterfront / Queens Quay · promenade</div></div></div>
+        <div class="tl-row"><div class="tl-time">~13h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🍽️ Déjeuner Amsterdam BrewHouse</div><div class="tl-sub">Terrasse waterfront · bières brassées sur place</div></div></div>
+        <div class="tl-row"><div class="tl-time">~15h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🏨 Check-out DoubleTree · bagages</div></div></div>
+        <div class="tl-row"><div class="tl-time">~17h30</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">🚕 Départ YYZ</div><div class="tl-tags"><span class="tag tag-transport">Uber ~30 min</span></div></div></div>
+        <div class="tl-row"><div class="tl-time">21h00</div><div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-what">✈️ Décollage AC842 · Toronto → Frankfurt</div></div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Base</div>
+    <div class="spots-grid">
+      <div class="spot-card is-base"><div class="spot-emoji">🏨</div><div><div class="spot-name">DoubleTree by Hilton</div><div class="spot-detail">108 Chestnut St · Downtown</div></div><a class="nav-link" href="https://maps.google.com/?q=43.6546342,-79.3860349" target="_blank">↗ Maps</a></div>
+    </div>
+    </div><!-- /toronto-prog -->
+
+    <div class="section-panel" id="toronto-food">
+      <div class="tip-bar">💡 Taxe <strong>+13%</strong> HST (Ontario) · Multiplicateur <strong>×1,33</strong> · Tip bouton <strong>18%</strong> · Baldwin St à 12 min à pied du DoubleTree</div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Chubby's Jamaican Kitchen</div><div class="fd-emoji">🍗</div></div><div class="fd-dish">Jerk chicken · brown stew · plantains</div><div class="fd-info">La version urbaine et affinée de la cuisine jamaïcaine. Ven/sam jusqu'à minuit.</div><div class="fd-address">104 Portland St, King West · résa recommandée le soir</div><a class="nav-link" href="https://maps.google.com/?q=43.6453093,-79.4006543" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-resa">Réservé 20h</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Mother's Dumplings</div><div class="fd-emoji">🥟</div></div><div class="fd-dish">Dumplings maison · porc/ciboulette · agneau</div><div class="fd-info">Prix tout doux, qualité constante. Spadina Ave, colonne du Chinatown torontois.</div><div class="fd-address">421 Spadina Ave, Chinatown · 11h30–22h</div><a class="nav-link" href="https://maps.google.com/?q=43.657117,-79.3994361" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Trattoria Taverniti</div><div class="fd-emoji">🍕</div></div><div class="fd-dish">Pizza bois · gnocchi rosé · calamari</div><div class="fd-info">La vraie trattoria de Little Italy. Réservation obligatoire — sans ça tu rentres pas.</div><div class="fd-address">591 College St, Little Italy · 17h (sam 12h)</div><a class="nav-link" href="https://maps.google.com/?q=43.655196,-79.4135336" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-resa">Résa INDISPENSABLE</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Street Grill Bar</div><div class="fd-emoji">🍢</div></div><div class="fd-dish">Brochettes chinoises NE · agneau · pétoncles</div><div class="fd-info">4,8/5. Pichet bière à 13 CAD. Ambiance animée. Résa conseillée le soir.</div><div class="fd-address">20 Baldwin St · 16h–1h (wkd 12h)</div><a class="nav-link" href="https://maps.google.com/?q=43.656209,-79.3931136" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-resa">Résa conseillée</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">SmoQue N' Bones</div><div class="fd-emoji">🥩</div></div><div class="fd-dish">BBQ artisanal · brisket · ribs de porc</div><div class="fd-info">Brisket se déchire à la fourchette. Happy hour 15h–18h. Même rue que Street Grill.</div><div class="fd-address">30 Baldwin St · 12h–22h (ven–dim 11h)</div><a class="nav-link" href="https://maps.google.com/?q=43.656115,-79.3937439" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Mexhico Foods</div><div class="fd-emoji">🌮</div></div><div class="fd-dish">Mexicain · tacos crevettes · guacamole tableside</div><div class="fd-info">4,7/5. Guac préparé devant vous, carnitas, cocktails signature. Fermé lundi.</div><div class="fd-address">26 Baldwin St · 12h–21h · Fermé lundi</div><a class="nav-link" href="https://maps.google.com/?q=43.656192,-79.3933805" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Yunnan Noodle Shack</div><div class="fd-emoji">🍜</div></div><div class="fd-dish">Nouilles yunnanaises · brisket braisé</div><div class="fd-info">Cloisons type solo dining japonais. Noodles supplémentaires gratuits. −20% entre 14h–17h.</div><div class="fd-address">43 Baldwin St · 11h30–22h</div><a class="nav-link" href="https://maps.google.com/?q=43.655785,-79.3937013" target="_blank">↗ Maps</a><span class="fd-badge fd-badge-deal">−20% entre 14h–17h</span></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Cheng Du Street Food</div><div class="fd-emoji">🌶️</div></div><div class="fd-dish">Sichuanais · Mapo Tofu · poulet croustillant · bœuf pimenté</div><div class="fd-info">4,8/5 sur 2400 avis. "Mild" reste épicé. Le meilleur sichuanais du quartier.</div><div class="fd-address">405 Dundas St W, Chinatown · 11h30–23h</div><a class="nav-link" href="https://maps.google.com/?q=43.653500,-79.3948309" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Golden Patty</div><div class="fd-emoji">🫓</div></div><div class="fd-dish">Jamaican patty · bœuf épicé · curry goat</div><div class="fd-info">~2,50 CAD pièce. Street food emblématique de Toronto. Kensington Market.</div><div class="fd-address">187 Baldwin St · 8h–18h</div><a class="nav-link" href="https://maps.google.com/?q=43.654580,-79.4010872" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Distillery Historic District</div><div class="fd-emoji">🏭</div></div><div class="fd-dish">Quartier pavé · El Catrin · Mill Street Brewpub</div><div class="fd-info">À explorer à pied. Bâtiments victoriens, plusieurs tables indépendantes, marché le weekend.</div><div class="fd-address">Distillery District, Toronto Est · 10h–21h</div><a class="nav-link" href="https://maps.google.com/?q=43.650246,-79.3591331" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="toronto-drinks">
+      <div class="tip-bar">💡 Taxe <strong>+13%</strong> HST (Ontario) · Multiplicateur <strong>×1,33</strong> · Tip bouton <strong>18%</strong></div>
+      <div class="fd-grid">
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Amsterdam BrewHouse</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Bières maison · terrasse waterfront lac Ontario</div><div class="fd-info">Vue sur le lac. Idéal dernier après-midi avant l'aéroport (vol 21h J8). 11h–minuit.</div><div class="fd-address">245 Queens Quay W, Harbourfront · 11h–minuit</div><a class="nav-link" href="https://maps.google.com/?q=43.637876,-79.3847269" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Bar Raval</div><div class="fd-emoji">🍷</div></div><div class="fd-dish">Tapas espagnols · croquetas · patatas bravas · cocktails</div><div class="fd-info">Boiserie organique sculptée unique à Toronto. Debout/comptoir style Madrid. 13h–1h.</div><div class="fd-address">505 College St, Little Italy · 13h–1h</div><a class="nav-link" href="https://maps.google.com/?q=43.655824,-79.4099149" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Everyside Social</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Taphouse downtown · craft beer · 4,7/5</div><div class="fd-info">Le plus proche du DoubleTree (8 min). Espresso martini, food variée. 11h–2h 7j/7.</div><div class="fd-address">120 Adelaide St W · 11h–2h · 7j/7</div><a class="nav-link" href="https://maps.google.com/?q=43.6497295,-79.3832339" target="_blank">↗ Maps</a></div>
+        <div class="fd-card"><div class="fd-head"><div class="fd-name">Bar Hop</div><div class="fd-emoji">🍺</div></div><div class="fd-dish">Craft beer curated · Buck a Shuck mardi · wings gochujang</div><div class="fd-info">Barman très calé sur les bières. King St W, 20 min à pied. 16h–minuit (wkd 12h).</div><div class="fd-address">391 King St W · 16h–minuit (wkd 12h)</div><a class="nav-link" href="https://maps.google.com/?q=43.645577,-79.3935637" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+
+    <div class="section-panel" id="toronto-mustsee">
+      <div class="tip-bar">💡 Hors périmètre du programme — pur incontournable touristique, à intégrer seulement si ça vous tente vraiment.</div>
+      <div class="fd-grid">
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">CN Tower</div><div class="fd-emoji">🗼</div></div><div class="fd-info">Tour emblématique de Toronto, observation deck et SkyPod à 447m — tu as déjà la photo extérieure au programme.</div><div class="fd-address">301 Front St W · ouvert 24h/24 (billetterie variable)</div><a class="nav-link" href="https://maps.google.com/?q=43.6425662,-79.3870568" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Ripley's Aquarium of Canada</div><div class="fd-emoji">🦈</div></div><div class="fd-info">Aquarium avec tunnel sous-marin mobile au milieu des requins, juste à côté de la CN Tower.</div><div class="fd-address">288 Bremner Blvd · 9h–23h</div><a class="nav-link" href="https://maps.google.com/?q=43.6421785,-79.3866022" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Casa Loma</div><div class="fd-emoji">🏰</div></div><div class="fd-info">Château néo-gothique de 1911 avec tunnel souterrain et jardins, version torontoise du manoir européen.</div><div class="fd-address">1 Austin Terrace · 9h30–17h</div><a class="nav-link" href="https://maps.google.com/?q=43.6780371,-79.4094439" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Royal Ontario Museum</div><div class="fd-emoji">🦕</div></div><div class="fd-info">Grand musée d'histoire naturelle et de cultures du monde, architecture cristalline reconnaissable.</div><div class="fd-address">100 Queens Park · 10h–17h30</div><a class="nav-link" href="https://maps.google.com/?q=43.6677097,-79.3947771" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Toronto Islands</div><div class="fd-emoji">⛴️</div></div><div class="fd-info">Ferry depuis le waterfront vers des îles avec plages et vue sur le skyline de Toronto.</div><div class="fd-address">Jack Layton Ferry Terminal, 9 Queens Quay W</div><a class="nav-link" href="https://maps.google.com/?q=43.6404124,-79.3757241" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">St. Lawrence Market</div><div class="fd-emoji">🏛️</div></div><div class="fd-info">Marché couvert historique de 1850, plus institutionnel que Kensington mais réputé pour la qualité.</div><div class="fd-address">Toronto · fermé lundi · 9h–19h (sam 7h–17h, dim 10h–17h)</div><a class="nav-link" href="https://maps.google.com/?q=43.6486879,-79.3715454" target="_blank">↗ Maps</a></div>
+        <div class="fd-card must-see"><div class="fd-head"><div class="fd-name">Hockey Hall of Fame</div><div class="fd-emoji">🏒</div></div><div class="fd-info">Musée du hockey avec la vraie coupe Stanley et un vestiaire reconstitué pour la photo.</div><div class="fd-address">30 Yonge St · 9h–17h</div><a class="nav-link" href="https://maps.google.com/?q=43.6472722,-79.3776902" target="_blank">↗ Maps</a></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════ ACTIONS ═══════════ -->
+  <div class="city-panel" id="panel-actions">
+    <div class="city-header"><span class="city-name gold">Actions avant départ</span></div>
+    <div class="city-meta">Prix et horaires à confirmer en ligne avant réservation <span class="verif">[Vérifie ça]</span></div>
+
+    <div class="action-card"><div class="action-prio">✅</div><div><div class="action-name">Niagara Falls Pass Plus — acheté ×2</div><div class="action-detail">Inclut Journey Behind the Falls, Power Station + Tunnel, White Water Walk et WEGO · Niagara City Cruises n'est <strong>pas</strong> dans le bundle, payée séparément</div></div></div>
+    <div class="action-card"><div class="action-prio">🔴</div><div><div class="action-name">Activer le pass et réserver les créneaux — dès l'arrivée J4</div><div class="action-detail">Comptoir Table Rock ou centre d'accueil Niagara Parks, en fin d'après-midi le J4 (mer 5/08) · pas de réservation en ligne trouvée · le pass étant valable 2 jours, activer tôt sécurise les créneaux du J5 sans faire la queue le matin même <span class="verif">[Vérifie ça]</span></div></div></div>
+    <div class="action-card"><div class="action-prio">✅</div><div><div class="action-name">Chubby's Jamaican Kitchen — réservé 20h</div><div class="action-detail">Vendredi 7 août au soir</div></div></div>
+    <div class="action-card"><div class="action-prio">🟡</div><div><div class="action-name">Réserver Trattoria Taverniti</div><div class="action-detail">Samedi 8 août au soir (pas le 9 — erreur dans l'ancien brief) · indispensable, petit resto plein le samedi</div></div></div>
+    <div class="action-card"><div class="action-prio">🟡</div><div><div class="action-name">Télécharger attestation Amex / Europ Assistance</div><div class="action-detail">Avant le départ · couverture jusqu'à 75 000 € · franchise 150 € · décliner CDW/LDW au comptoir Avis</div></div></div>
+    <div class="action-card"><div class="action-prio">🟢</div><div><div class="action-name">Apéro Dieu du Ciel! décalé au J3</div><div class="action-detail">Fermé le dimanche 2/08 · remplacé par Vices &amp; Versa au J1 — intégré au programme</div></div></div>
+
+    <div class="section-label">Logistique clé</div>
+    <div class="action-card"><div class="action-prio">🚗</div><div><div class="action-name">Voiture Avis</div><div class="action-detail">Pickup mar 4/08 7h30 · 5 Complexe Desjardins, CP 459, Débarcadère Saint-Urbain, Montréal (ouvre 7h) — Drop ven 7/08 · 161 Bay St Unit 140, BCE, Toronto (ferme 18h) · payée intégralement Amex Gold</div></div></div>
+    <div class="action-card"><div class="action-prio">✈️</div><div><div class="action-name">Vols</div><div class="action-detail">Aller AC845 · FRA → YUL · arrivée dim 2/08 11h45 — Retour AC842 · YYZ → FRA · départ dim 9/08 21h00</div></div></div>
+  </div>
+</div>
+
+<script>
+function switchCity(city) {
+  document.querySelectorAll('.city-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('panel-'+city).classList.add('active');
+  document.querySelector('[data-city="'+city+'"]').classList.add('active');
+}
+function switchSection(city, section, btn) {
+  var panel = document.getElementById('panel-' + city);
+  panel.querySelectorAll('.section-btn').forEach(function(b){ b.classList.remove('active'); });
+  panel.querySelectorAll('.section-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(city + '-' + section).classList.add('active');
+}
+</script>
+</body>
+</html>
